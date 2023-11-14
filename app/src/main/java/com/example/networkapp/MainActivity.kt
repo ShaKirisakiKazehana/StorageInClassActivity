@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var numberEditText: EditText
     lateinit var showButton: Button
     lateinit var comicImageView: ImageView
+    private val fileHelper = FileHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,31 +67,18 @@ class MainActivity : AppCompatActivity() {
             comicObject.getString("img")
         )
     }
-    private val sharedPreferencesKey = "comic_info"
-
     private fun saveComic(comicId: String, title: String, description: String, imageUrl: String) {
-        val sharedPreferences = getSharedPreferences(sharedPreferencesKey, MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString("comicId", comicId)
-        editor.putString("title", title)
-        editor.putString("description", description)
-        editor.putString("imageUrl", imageUrl)
-        editor.apply()
+        fileHelper.saveComic(this, comicId, title, description, imageUrl)
     }
 
     private fun loadComic() {
-        val sharedPreferences = getSharedPreferences(sharedPreferencesKey, MODE_PRIVATE)
-        val comicId = sharedPreferences.getString("comicId", "")
-        val title = sharedPreferences.getString("title", "")
-        val description = sharedPreferences.getString("description", "")
-        val imageUrl = sharedPreferences.getString("imageUrl", "")
-
-        if (comicId!!.isNotEmpty()) {
+        val comicData = fileHelper.loadComic(this)
+        if (!comicData[0].isNullOrEmpty()) {
             // Display the saved comic information
-            numberEditText.setText(comicId)
-            titleTextView.text = title
-            descriptionTextView.text = description
-            Picasso.get().load(imageUrl).into(comicImageView)
+            numberEditText.setText(comicData[0])
+            titleTextView.text = comicData[1]
+            descriptionTextView.text = comicData[2]
+            Picasso.get().load(comicData[3]).into(comicImageView)
         }
     }
 
