@@ -43,6 +43,8 @@ class MainActivity : AppCompatActivity() {
             downloadComic(numberEditText.text.toString())
         }
 
+        loadComic()
+
     }
 
     private fun downloadComic (comicId: String) {
@@ -57,7 +59,41 @@ class MainActivity : AppCompatActivity() {
         titleTextView.text = comicObject.getString("title")
         descriptionTextView.text = comicObject.getString("alt")
         Picasso.get().load(comicObject.getString("img")).into(comicImageView)
+        saveComic(
+            comicObject.getString("num"),
+            comicObject.getString("title"),
+            comicObject.getString("alt"),
+            comicObject.getString("img")
+        )
     }
+    private val sharedPreferencesKey = "comic_info"
+
+    private fun saveComic(comicId: String, title: String, description: String, imageUrl: String) {
+        val sharedPreferences = getSharedPreferences(sharedPreferencesKey, MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("comicId", comicId)
+        editor.putString("title", title)
+        editor.putString("description", description)
+        editor.putString("imageUrl", imageUrl)
+        editor.apply()
+    }
+
+    private fun loadComic() {
+        val sharedPreferences = getSharedPreferences(sharedPreferencesKey, MODE_PRIVATE)
+        val comicId = sharedPreferences.getString("comicId", "")
+        val title = sharedPreferences.getString("title", "")
+        val description = sharedPreferences.getString("description", "")
+        val imageUrl = sharedPreferences.getString("imageUrl", "")
+
+        if (comicId!!.isNotEmpty()) {
+            // Display the saved comic information
+            numberEditText.setText(comicId)
+            titleTextView.text = title
+            descriptionTextView.text = description
+            Picasso.get().load(imageUrl).into(comicImageView)
+        }
+    }
+
 
 
 }
